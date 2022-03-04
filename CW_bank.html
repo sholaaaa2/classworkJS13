@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style media="screen">
+    section{
+      width: 350px;
+      height: 300px;
+      margin: auto;
+      background-color: black;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    section div{
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .cup_prod{justify-content: space-between;margin: 0 35px}
+    h1{text-align: center;}
+    .container span:not(span:nth-child(2)){color: red;font-size: 2.5rem;width: 90px;display: inline-block;}
+  </style>
+</head>
+<body>
+
+
+  <section>
+    <h1>ОБМІН ВАЛЮТ</h1>
+    <div class="cup_prod"><span>КУПІВЛЯ</span><span>ПРОДАЖ</span></div>
+    <div class="container">
+      <span id = "USDk">00.00</span>
+      <span>USD</span>
+      <span id = "USDp">00.00</span>
+    </div>
+    <div class="container">
+      <span id = "EURk">00.00</span>
+      <span>EUR</span>
+      <span id = "EURp">00.00</span>
+    </div>
+    <div class="container">
+      <span id = "PLNk">00.00</span>
+      <span>PLN</span>
+      <span id = "PLNp">00.00</span>
+    </div>
+  </section>
+
+  <script>
+      let xhr = new XMLHttpRequest();
+      xhr.open("GET", "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json");
+      let arr = [];
+
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState == 4 && xhr.status == 200) {
+            arr = JSON.parse(xhr.responseText);
+            console.dir(arr);
+            let usdObj = arr[26];
+            let eurObj = arr[32];
+            let plnObj = arr[33];
+
+            function showCost(obj) {
+              let price = Math.floor(obj.rate*100);
+
+              document.querySelector(`#${obj.cc}k`).innerHTML = price/100;
+
+              if ((obj.cc == "USD" || obj.cc == "EUR") && document.querySelector(`#${obj.cc}k`).innerText.length < 5) {
+                document.querySelector(`#${obj.cc}k`).innerHTML +=0;
+              }
+              if (obj.cc == "PLN") {
+                document.querySelector(`#${obj.cc}k`).innerHTML = "0"+document.querySelector(`#${obj.cc}k`).innerHTML
+              }
+
+              document.querySelector(`#${obj.cc}p`).innerHTML =Math.floor(price + price/15)/100;
+
+              if ((obj.cc == "USD" || obj.cc == "EUR") && document.querySelector(`#${obj.cc}p`).innerText.length < 5) {
+                document.querySelector(`#${obj.cc}p`).innerHTML +="0";
+              }
+              if (obj.cc == "PLN") {
+                document.querySelector(`#${obj.cc}p`).innerHTML = "0"+document.querySelector(`#${obj.cc}p`).innerHTML
+              }
+            };
+
+            showCost(usdObj);
+            showCost(eurObj)
+            showCost(plnObj)
+          }
+      }
+      xhr.send();
+
+
+  </script>
+</body>
+</html>
